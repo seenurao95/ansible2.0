@@ -1,0 +1,50 @@
+---
+
+- name: Update, Install Apache2
+  hosts: webserver
+  
+  tasks:
+                        
+          - name: install apache2
+            ansible.builtin.apt:
+                    name: apache2
+                    state: present
+                    update_cache: true
+          
+          - name: restart and enable apache2
+            ansible.builtin.systemd:
+                    name: apache2
+                    state: restarted
+                    enabled: true
+
+          - name: create "ansible" folder in /var/www/
+            ansible.builtin.file:
+                    owner: ansibleadmin
+                    path: /var/www/ansible
+                    state: directory
+
+          - name: copy all website files to /var/www/ansible
+            ansible.builtin.copy:
+                    src: /home/ansibleadmin/ansible2.0/ansible2.0/InteractiveResume
+                    dest: /var/www/ansible/
+                    owner: ansibleadmin
+                    group: admin
+
+
+          - name: copy local git folder config file to destination /etc/apache2/sites-available/
+            ansible.builtin.copy:
+                    src: /home/ansibleadmin/ansible2.0/ansible2.0/ansible2.conf
+                    dest: /etc/apache2/sites-available/
+                    owner: ansibleadmin
+                    group: admin
+
+          - name: trigger a2ensite and a2dissite script
+            ansible.builtin.shell:
+                    chdir: /etc/apache2/sites-available/
+                    cmd: sudo systemctl restart apache2
+                            # - sudo a2ensite ansible2.conf
+                            # sudo systemctl restart apache2
+
+                            
+
+
